@@ -1,0 +1,132 @@
+// get it from https://davidwalsh.name/sass-media-query
+// https://css-tricks.com/approaches-media-queries-sass/
+$media-expressions: (
+    screen: "screen", 
+    handheld: "handheld",
+    retina2x: 
+    ("(-webkit-min-device-pixel-ratio: 2)", 
+    "(min-resolution: 192dpi)")
+) !default;
+$breakpoints: (
+    phone: 375px, 
+    tablet: 768px, 
+    desktop: 992px,
+    desktop_xl: 1200px,
+) !default;
+$im-media-support: true !default;
+@function parse-expression($expression) {
+    $operator: "";
+    $value: "";
+    $element: "";
+    $result: "";
+    $is-width: true;
+  
+    // Separating the operator from the rest of the expression
+    @if (str-slice($expression, 2, 2) == "=") {
+      $operator: str-slice($expression, 1, 2);
+      $value: str-slice($expression, 3);
+    } @else {
+      $operator: str-slice($expression, 1, 1);
+      $value: str-slice($expression, 2);
+    }
+  
+    // Checking what type of expression we're dealing with
+    @if map-has-key($breakpoints, $value) {
+      $result: map-get($breakpoints, $value);
+    } @else if map-has-key($media-expressions, $expression) {
+      $result: map-get($media-expressions, $expression);
+      $is-width: false;
+    } @else {
+      $result: to-number($value);
+    }
+  
+    // If we're dealing with a width (breakpoint or custom value), 
+    // we form the expression taking into account the operator.
+    @if ($is-width) {
+      @if ($operator == ">") {
+        $element: "(min-width: #{$result + 1})";
+      } @else if ($operator == "&lt;") {
+        $element: "(max-width: #{$result - 1})";
+      } @else if ($operator == ">=") {
+        $element: "(min-width: #{$result})";
+      } @else if ($operator == "&lt;=") {
+        $element: "(max-width: #{$result})";
+      }
+    } @else {
+      $element: $result;
+    }
+  
+    @return $element;
+  }
+@function get-query-branches($expressions) {
+    $result: "";
+    $has-groups: false;
+  
+    // Getting initial snapshot and looking for groups
+    @each $expression in $expressions {
+      @if (str-length($result) != 0) {
+        $result: $result + " and ";
+      }
+  
+      @if (type-of($expression) == "string") {
+        $result: $result + $expression;
+      } @else if (type-of($expression) == "list") {
+        $result: $result + nth($expression, 1);
+        $has-groups: true;
+      }
+    }
+  
+    // If we have groups, we have to create all possible combinations
+    @if $has-groups {
+      @each $expression in $expressions {
+        @if (type-of($expression) == "list") {
+          $first: nth($expression, 1);
+  
+          @each $member in $expression {
+            @if ($member != $first) {
+              @each $partial in $result {
+                $result: join($result, str-replace-first($first, $member, $partial));
+              }
+            }
+          }
+        }
+      }
+    }
+  
+    @return $result;
+  }
+@mixin media($conditions...) {
+    @for $i from 1 through length($conditions) {
+      $conditions: set-nth($conditions, $i, parse-expression(nth($conditions, $i)));
+    }
+  
+    $branches: get-query-branches($conditions);
+    $query: "";
+  
+    @each $branch in $branches {
+      @if (str-length($query) != 0) {
+        $query: $query + ", ";
+      }
+  
+      $query: $query + $branch;
+    }
+  
+    @media #{$query} {
+      @content;
+    }
+  }
+@mixin media-context($tweakpoints: (), $tweak-media-expressions: ()) { 
+    // Save global configuration
+    $global-breakpoints: $breakpoints;
+    $global-media-expressions: $media-expressions;
+  
+    // Update global configuration
+    $breakpoints: map-merge($breakpoints, $tweakpoints) !global;
+    $media-expressions: map-merge($media-expressions, $tweak-media-expressions) !global;
+  
+    @content;
+  
+    // Restore global configuration
+    $breakpoints: $global-breakpoints !global;
+    $media-expressions: $tweak-media-expressions !global;
+   }

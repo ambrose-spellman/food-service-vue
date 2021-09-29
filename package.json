@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-auth0",
+  "version": "1.0.0",
+  "description": "Nuxt.js + Auth0",
+  "author": "NuxtJS Team",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt-start"
+  },
+  "dependencies": {
+    "@nuxtjs/auth": "^4.9.1",
+    "@nuxtjs/axios": "^5.12.2",
+    "bootstrap-vue": "^2.21.2",
+    "dotenv": "^8.2.0",
+    "element-ui": "^2.15.6",
+    "include-media": "^1.4.10",
+    "normalize.css": "^8.0.1",
+    "nuxt-start": "^2.14.3",
+    "vue-slick-carousel": "^1.0.6"
+  },
+  "devDependencies": {
+    "fibers": "^5.0.0",
+    "nuxt": "^2.14.3",
+    "sass": "~1.32.12",
+    "sass-loader": "10"
+  }
+}

@@ -1,0 +1,30 @@
+@import "./media.scss";
+// color variables  
+$orange: #EF4D1A;
+$black: #2B2A29; 
+$light_grey: #F6F6F6;
+$secondary: #fff;
+@mixin button {
+    padding: 13px 18px;
+    border-radius: 10px;
+    background: $orange;
+    color: #fff;
+    font-family: Raleway;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 17px;
+    font-feature-settings: 'pnum' on, 'lnum' on;
+    @include media(">tablet") {
+        font-size: 16px;
+        line-height: 19px;
+    }
+    &:hover {
+      background:darken($orange,8%);
+      transition: all 0.3s ease;
+    }
+    &:active {
+      background:darken($orange,25%);
+    } 
+ }
+
