@@ -5,217 +5,144 @@
       <button class="header_lang-item">Қазақша</button>
       <button class="header_lang-item">English</button>
     </div>
-      <div class="dropdown_custom" data-open="false">
-      <button
-        class="dropdown_custom-button user_panel-user-button"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >Русский
-      <i class="dropdown-button-arrow fas fa-angle-down"></i></button>
-
-      <ul
-        class="dropdown_custom-menu slide"
-        aria-role="menu"
-        aria-hidden="true"
-      >
-        <li
-          class="dropdown_custom-menu-item"
-          tabindex="-1"
-          aria-role="menuitem"
-        >
-          <i class="dropdown_custom-item-icon fas history-ic"></i>
-          <span>История заказов</span>
-        </li>
-        <li
-          class="dropdown_custom-menu-item"
-          tabindex="-1"
-          aria-role="menuitem"
-        >
-          <i class="dropdown_custom-item-icon address-ic"></i>
-          <span>Қазақша</span>
-        </li>
-
-        <li
-          class="dropdown_custom-menu-item"
-          tabindex="-1"
-          aria-role="menuitem"
-        >
-          <i class="dropdown_custom-item-icon credit_card-ic"></i>
-          <span>English</span>
-        </li>
-      </ul>
+    <div class="lang_select" :data-value="value" :data-list="list">
+      <div class="selector" @click="toggle()">
+        <div class="label">
+          <span>{{ value }}</span>
+        </div>
+        <div class="arrow" :class="{ expanded: visible }"></div>
+        <div :class="{ hidden: !visible, visible }">
+          <ul class="lang_dropdown">
+            <li
+              :class="{ current: item === value }"
+              v-for="item in list"
+              v-bind:key="item"
+              @click="select(item)"
+            >
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
-import {Select, Option} from 'element-ui';
 export default {
-    name: "HeaderLang",
-     mounted() {
-    class Dropdown {
-      constructor(container) {
-        this.isOpen = false;
-        this.activeIndex = undefined;
-
-        this.container = container;
-        this.button = container.querySelector(".dropdown_custom-button");
-        this.menu = container.querySelector(".dropdown_custom-menu");
-        this.items = container.querySelectorAll(".dropdown_custom-menu-item");
-      }
-
-      initEvents() {
-        this.button.addEventListener("click", this.toggle.bind(this));
-        document.addEventListener("click", this.onClickOutside.bind(this));
-        document.addEventListener("keydown", this.onKeyEvent.bind(this));
-      }
-
-      toggle() {
-        this.isOpen = !this.isOpen;
-        this.button.setAttribute("aria-expanded", this.isOpen);
-        this.menu.setAttribute("aria-hidden", !this.isOpen);
-        this.container.dataset.open = this.isOpen;
-      }
-
-      onClickOutside(e) {
-        if (!this.isOpen) return;
-
-        let targetElement = e.target;
-
-        do {
-          if (targetElement == this.container) return;
-
-          targetElement = targetElement.parentNode;
-        } while (targetElement);
-
-        this.toggle();
-      }
-
-      onKeyEvent(e) {
-        if (!this.isOpen) return;
-
-        if (e.key === "Tab") {
-          this.toggle();
-        }
-
-        if (e.key === "Escape") {
-          this.toggle();
-          this.button.focus();
-        }
-
-        if (e.key === "ArrowDown") {
-          this.activeIndex =
-            this.activeIndex < this.items.length - 1 ? this.activeIndex + 1 : 0;
-          this.items[this.activeIndex].focus();
-        }
-
-        if (e.key === "ArrowUp") {
-          this.activeIndex =
-            this.activeIndex > 0 ? this.activeIndex - 1 : this.items.length - 1;
-          this.items[this.activeIndex].focus();
-        }
-      }
-    }
-
-    const dropdown_customs = document.querySelectorAll(".dropdown_custom");
-    dropdown_customs.forEach((dropdown_custom) =>
-      new Dropdown(dropdown_custom).initEvents()
-    );
+  name: "HeaderLang",
+  data() {
+    return {
+      value: "Русский",
+      list: ["Русский", "Қазақша", "English"],
+      visible: false,
+    };
   },
-}
+  methods: {
+    toggle() {
+      this.visible = !this.visible;
+    },
+    select(option) {
+      this.value = option;
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 @import "../assets/variables.scss";
 @import "../assets/media.scss";
-::v-deep .el-input__inner {
-    border: none;
-    background: none;
-}
-::v-deep .el-select-dropdown__list {
-    list-style: none;
-}
-::v-deep .el-select {
-    display: inline-block;
+.lang_select {
+  width: 100px;
+  .selector {
+    background: #fff;
     position: relative;
-    max-width: 110px;
-}
-::v-deep .el-select>.el-input {
-    display: block;
-}
-::v-deep .el-input {
-    position: relative;
-    width: 100%;
-}
-::v-deep .el-input__inner {
-    -webkit-appearance: none;
-    background-color: #fff;
-    background-image: none;
-    border-radius: 4px;
-    box-sizing: border-box;
-    color: #606266;
-    display: inline-block;
-    height: 40px;
-    outline: none;
-    padding: 0 15px;
-    transition: border-color .2s cubic-bezier(.645,.045,.355,1);
-    width: 100%;
-    font-family: Raleway;
-    font-style: normal;
+    z-index: 1;
+    .arrow {
+      position: absolute;
+      right: 10px;
+      top: 40%;
+      width: 12px;
+      height: 6px;
+      background: url("../static/angle.svg") center/cover no-repeat;
+      transform: rotateZ(0deg) translateY(0px);
+      transition-duration: 0.3s;
+      transition-timing-function: cubic-bezier(0.59, 1.39, 0.37, 1.01);
+    }
+
+    .expanded {
+      transform: rotateZ(180deg) translateY(2px);
+    }
+    .label {
+      display: block;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 19px;
+      font-feature-settings: "pnum" on, "lnum" on;
+      color: $black;
+    }
+  }
+  .lang_dropdown {
+    width: 163px;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    background: #ffffff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    top: 45px;
+     &::before {
+      position:absolute;
+      top: -13px;
+      right: 15px;
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 16px solid #fff;
+      z-index: 2;
+    }
+    &::after {
+      /* This is the shadow triangle */
+      position:absolute;
+      top:-16px; right: 13px;
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 17px solid transparent;
+      border-right: 17px solid transparent;
+      border-bottom: 17px solid rgba(0,0,0, 0.03);
+      z-index:1;
+      }
+  }
+  li {
+    padding: 10px 15px;
     font-weight: 500;
     font-size: 16px;
     line-height: 19px;
-    font-feature-settings: 'pnum' on, 'lnum' on;
-    color: #2B2A29;
-
-}
-::v-deep .el-input__suffix {
-    position: absolute;
-    height: 100%;
-    right: 5px;
-    top: 0;
-    text-align: center;
-    color: #c0c4cc;
-    transition: all .3s;
-    pointer-events: none;
-}
-::v-deep .el-input__suffix-inner {
-    pointer-events: all;
-}
-::v-deep .el-select-dropdown {
-    position: absolute;
-    z-index: 1001;
-    border: 1px solid #e4e7ed;
-    border-radius: 4px;
-    background-color: #fff;
-    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-    box-sizing: border-box;
-    margin: 5px 0;
-}
-
-::v-deep .el-select .el-input .el-select__caret {
-    color: #c0c4cc;
-    font-size: 14px;
-    transition: transform .3s;
-    transform: rotate(180deg);
-    cursor: pointer;
-}
-::v-deep .el-select .el-input .el-select__caret.is-reverse {
-    transform: rotate(0deg);
-}
-::v-deep .el-input__icon {
-    width: 25px;
-    line-height: 40px;
-    height: 100%;
-    text-align: center;
-}
-::v-deep .el-icon-arrow-up:before {
-    content: url('../static/angle.svg');
-}
-::v-deep .el-input__icon:after {
-    content: "";
-    height: 100%;
-    width: 0;
-    display: inline-block;
-    vertical-align: middle;
+    font-feature-settings: "pnum" on, "lnum" on;
+    color: $black;
+    border-bottom: 1px solid $light_grey;
+    &:last-child {
+      border-bottom: none;
+    }
+    &:hover {
+      color: $orange;
+    }
+  }
+  .current {
+    background: url("../static/check.svg") right 15px center/16px 11px no-repeat;
+  }
+  .hidden {
+    visibility: hidden;
+  }
+  .visible {
+    visibility: visible;
+    
+  }
 }
 .header_lang {
   text-align: center;
