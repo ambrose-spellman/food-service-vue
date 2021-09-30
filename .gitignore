@@ -4,5 +4,10 @@ node_modules
 npm-debug.log
 # Nuxt build
 .nuxt
-# Nuxt generate
+# Editor
 .vscode
+# Nuxt generate
+dist
+
+# Auth0 config
+.env
